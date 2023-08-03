@@ -1,0 +1,11 @@
+{
+  "name": "react-debugger",
+  "version": "1.0.0",
+  "description": "调试React源码+注解",
+  "scripts": {
+    "start": "http-server -p 8088"
+  },
+  "keywords": [],
+  "author": "PengShengjieDev",
+  "license": "ISC"
+}

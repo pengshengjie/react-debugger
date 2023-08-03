@@ -7,7 +7,6 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-debugger
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('react')) :
   typeof define === 'function' && define.amd ? define(['exports', 'react'], factory) :
@@ -13496,6 +13495,7 @@ debugger
     return update;
   }
   function enqueueUpdate(fiber, update, lane) {
+    debugger
     var updateQueue = fiber.updateQueue;
 
     if (updateQueue === null) {
@@ -13504,16 +13504,11 @@ debugger
     }
 
     var sharedQueue = updateQueue.shared;
-
-    {
-      if (currentlyProcessingQueue === sharedQueue && !didWarnUpdateInsideUpdate) {
-        error('An update (setState, replaceState, or forceUpdate) was scheduled ' + 'from inside an update function. Update functions should be pure, ' + 'with zero side-effects. Consider using componentDidUpdate or a ' + 'callback.');
-
-        didWarnUpdateInsideUpdate = true;
-      }
-    }
-
+    /**
+     * update队列是一个环状链表
+     */
     if (isUnsafeClassRenderPhaseUpdate()) {
+
       // This is an unsafe render phase update. Add directly to the update
       // queue so we can process it immediately during the current render.
       var pending = sharedQueue.pending;
@@ -28818,31 +28813,35 @@ debugger
   }
   function updateContainer(element, container, parentComponent, callback) {
     {
+      /**
+       * 优先级相关暂时跳过
+       */
       onScheduleRoot(container, element);
     }
-
+    debugger
+    // container上的current指当前的currentRootFibter树
     var current$1 = container.current;
     var eventTime = requestEventTime();
     var lane = requestUpdateLane(current$1);
 
     {
+      /**
+       * 优先级相关暂时跳过
+       */
       markRenderScheduled(lane);
     }
 
+    /**
+     * 传递context
+     * 通过父组件获取当前的context上下文
+     * 在初始化时候，这时还没有context
+     */
     var context = getContextForSubtree(parentComponent);
 
     if (container.context === null) {
       container.context = context;
     } else {
       container.pendingContext = context;
-    }
-
-    {
-      if (isRendering && current !== null && !didWarnAboutNestedUpdates) {
-        didWarnAboutNestedUpdates = true;
-
-        error('Render methods should be a pure function of props and state; ' + 'triggering nested component updates from render is not allowed. ' + 'If necessary, trigger nested updates in componentDidUpdate.\n\n' + 'Check the render method of %s.', getComponentNameFromFiber(current) || 'Unknown');
-      }
     }
 
     var update = createUpdate(eventTime, lane); // Caution: React DevTools currently depends on this property
@@ -28852,17 +28851,16 @@ debugger
       element: element
     };
     callback = callback === undefined ? null : callback;
-
+    /**
+     * 将回调函数保存，方便后续调用
+     */
     if (callback !== null) {
-      {
-        if (typeof callback !== 'function') {
-          error('render(...): Expected the last optional `callback` argument to be a ' + 'function. Instead received: %s.', callback);
-        }
-      }
-
       update.callback = callback;
     }
 
+    /**
+     * 执行更新队列
+     */
     var root = enqueueUpdate(current$1, update, lane);
 
     if (root !== null) {
@@ -29293,12 +29291,12 @@ debugger
     this._internalRoot = internalRoot;
   }
 
+  /**
+   * 使用createRoot和HydrationRoot Render的入口
+   */
   ReactDOMHydrationRoot.prototype.render = ReactDOMRoot.prototype.render = function (children) {
     var root = this._internalRoot;
 
-    if (root === null) {
-      throw new Error('Cannot update an unmounted root.');
-    }
     updateContainer(children, root, null, null);
   };
 

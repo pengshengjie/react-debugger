@@ -18,11 +18,14 @@
     const React = window.React
 
     const root = window.ReactDOM.createRoot(document.getElementById('root'));
-
-    const Test = () => <div>123</div>
+    const Bro = () => <div>bro</div>
+    const Sun = () => <div>sun</div>
+    const Test = () => <div>
+      <Bro />
+      <Sun />
+    </div>
 
     const TestDom = <Test />
-    debugger
     root.render(TestDom);
 
   </script>

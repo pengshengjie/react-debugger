@@ -4838,6 +4838,11 @@
       return false;
     }
   }
+  /**
+   * 处理优先级任务调度工作
+   * 分析传递进来的 root 对象，该对象包含和React 应用相关的所有信息，例如fiber树，更新队列等。注意，root 类型通常是FiberRoot
+   * 根据需要计算任务优先级，这决定了更新应该何时执行以及它们相对于其他更新的处理顺序
+   */
   function onScheduleRoot(root, children) {
     {
       if (injectedHook && typeof injectedHook.onScheduleFiberRoot === 'function') {
@@ -5120,6 +5125,11 @@
       }
     }
   }
+    /**
+   * 标记与给定的 React 根节点（root）相关的渲染任务为已调度
+   * 确保 root 的 callbackPriority 为正确的值
+   * 将任务状态标记为已调度，这可以避免当前 React 的实例调度多个相同的任务。例如，当ReactRoot上的updateContainer的调用在同一时间内多次触发时。
+   */
   function markRenderScheduled(lane) {
     {
       if (injectedProfilingHooks !== null && typeof injectedProfilingHooks.markRenderScheduled === 'function') {
@@ -13483,6 +13493,11 @@
       workInProgress.updateQueue = clone;
     }
   }
+  /**
+   * 创建一个更新对象
+   * 将回调函数添加到更新对象中
+   * 以便将其添加到相应的组件或子树的更新队列中
+   */
   function createUpdate(eventTime, lane) {
     var update = {
       eventTime: eventTime,
@@ -13494,6 +13509,11 @@
     };
     return update;
   }
+  /**
+   * 给组件添加更新队列
+   * 如果组件没有挂起的更新，为组件创建新的更新队列；如果已有队列，将更新对象插入到队列中，基于优先级 (lane) 对其进行排序。
+   * 
+   */
   function enqueueUpdate(fiber, update, lane) {
     debugger
     var updateQueue = fiber.updateQueue;
@@ -13509,8 +13529,7 @@
      */
     if (isUnsafeClassRenderPhaseUpdate()) {
 
-      // This is an unsafe render phase update. Add directly to the update
-      // queue so we can process it immediately during the current render.
+      
       var pending = sharedQueue.pending;
 
       if (pending === null) {
@@ -25394,6 +25413,9 @@
     currentEventTime = now();
     return currentEventTime;
   }
+  /**
+   * 请求优先级
+   */
   function requestUpdateLane(fiber) {
     // Special cases
     var mode = fiber.mode;
@@ -28715,7 +28737,9 @@
     didWarnAboutNestedUpdates = false;
     didWarnAboutFindNodeInStrictMode = {};
   }
-
+  /**
+   * 在 React 应用中获取子树所需要的上下文
+   */
   function getContextForSubtree(parentComponent) {
     if (!parentComponent) {
       return emptyContextObject;
@@ -28811,11 +28835,13 @@
     scheduleInitialHydrationOnRoot(root, lane, eventTime);
     return root;
   }
+  /**
+   * 挂载和更新的主入口
+   * 负责协调、调度、渲染
+   */
   function updateContainer(element, container, parentComponent, callback) {
     {
-      /**
-       * 优先级相关暂时跳过
-       */
+
       onScheduleRoot(container, element);
     }
     debugger
@@ -28825,9 +28851,7 @@
     var lane = requestUpdateLane(current$1);
 
     {
-      /**
-       * 优先级相关暂时跳过
-       */
+
       markRenderScheduled(lane);
     }
 

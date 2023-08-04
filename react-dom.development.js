@@ -235,7 +235,6 @@
     // To fix the problem, coerce this object or symbol value to a string before
     // passing it to React. The most reliable way is usually `String(value)`.
     //
-    // To find which value is throwing, check the browser or debugger console.
     // Before this exception was thrown, there should be `console.error` output
     // that shows the type (Symbol, Temporal.PlainDate, etc.) that caused the
     // problem and how that type was used: key, atrribute, input value prop, etc.
@@ -13515,7 +13514,6 @@
    * 
    */
   function enqueueUpdate(fiber, update, lane) {
-    debugger
     var updateQueue = fiber.updateQueue;
 
     if (updateQueue === null) {
@@ -13524,12 +13522,10 @@
     }
 
     var sharedQueue = updateQueue.shared;
-    /**
-     * update队列是一个环状链表
-     */
+
     if (isUnsafeClassRenderPhaseUpdate()) {
 
-      
+
       var pending = sharedQueue.pending;
 
       if (pending === null) {
@@ -13550,6 +13546,10 @@
       return enqueueConcurrentClassUpdate(fiber, sharedQueue, update, lane);
     }
   }
+  /**
+   * 确保具有相同优先级的关联的更新一起处理
+   * 通过查找环状链表中的每个更新并且将它们的 lanes 与给定更新的 lane 值进行按位或（Bitwise OR）操作
+   */
   function entangleTransitions(root, fiber, lane) {
     var updateQueue = fiber.updateQueue;
 
@@ -25499,7 +25499,11 @@
     return claimNextRetryLane();
   }
 
+  /**
+   * 根据给定的 fiber 节点和优先级（也称为 "lane"）调度组件更新
+   */
   function scheduleUpdateOnFiber(root, fiber, lane, eventTime) {
+
     checkForNestedUpdates();
 
     {
@@ -25585,6 +25589,11 @@
     markRootUpdated(root, lane, eventTime);
     ensureRootIsScheduled(root, eventTime);
   }
+
+  /**
+   * 检查是否由类组件调用已经被弃用的生命周期行为
+   * 诸如UNSAFE_componentWillReceive
+   */
   function isUnsafeClassRenderPhaseUpdate(fiber) {
     // Check if this is a render phase update. Only called by class components,
     // which special (deprecated) behavior for UNSAFE_componentWillReceive props.
@@ -25597,7 +25606,14 @@
   // of the existing task is the same as the priority of the next level that the
   // root has work on. This function is called on every update, and right before
   // exiting a task.
-
+  /**
+   * 
+   * 在退出任务之前调用
+   * 每次更新都会调用执行该函数
+   * 检查根 Fiber 节点是否已经包含相应更新的 Lane。如果没有，该函数会将对应的 Lane 标记到根 Fiber 节点上。
+   * 对于优先级较高的更新（如与用户交互相关的），如果 Scheduler 在工作队列中没有可用的时间片来执行该更新，ensureRootIsScheduled 会触发一个新的渲染调度任务。
+   * 
+   */
   function ensureRootIsScheduled(root, currentTime) {
     var existingCallbackNode = root.callbackNode; // Check if any lanes are being starved by other work. If so, mark them as
     // expired so we know to work on those next.
@@ -26489,6 +26505,7 @@
 
 
   function workLoopSync() {
+    debugger
     // Already timed out, so perform work without checking if we need to yield.
     while (workInProgress !== null) {
       performUnitOfWork(workInProgress);
@@ -27313,6 +27330,11 @@
     return timeElapsed < 120 ? 120 : timeElapsed < 480 ? 480 : timeElapsed < 1080 ? 1080 : timeElapsed < 1920 ? 1920 : timeElapsed < 3000 ? 3000 : timeElapsed < 4320 ? 4320 : ceil(timeElapsed / 1960) * 1960;
   }
 
+  /**
+   * 检查嵌套更新是否正在发生
+   * 如render中调用setState
+   * 有则警告
+   */
   function checkForNestedUpdates() {
     if (nestedUpdateCount > NESTED_UPDATE_LIMIT) {
       nestedUpdateCount = 0;
@@ -27444,7 +27466,6 @@
 
     beginWork$1 = function (current, unitOfWork, lanes) {
       // If a component throws an error, we replay it again in a synchronously
-      // dispatched event, so that the debugger will treat it as an uncaught
       // error See ReactErrorUtils for more information.
       // Before entering the begin phase, copy the work-in-progress onto a dummy
       // fiber. If beginWork throws, we'll use this to reset the state.
@@ -28844,7 +28865,6 @@
 
       onScheduleRoot(container, element);
     }
-    debugger
     // container上的current指当前的currentRootFibter树
     var current$1 = container.current;
     var eventTime = requestEventTime();
@@ -28882,11 +28902,8 @@
       update.callback = callback;
     }
 
-    /**
-     * 执行更新队列
-     */
-    var root = enqueueUpdate(current$1, update, lane);
 
+    var root = enqueueUpdate(current$1, update, lane);
     if (root !== null) {
       scheduleUpdateOnFiber(root, current$1, lane, eventTime);
       entangleTransitions(root, current$1, lane);

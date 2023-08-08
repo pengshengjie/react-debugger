@@ -2413,14 +2413,29 @@
   var enableProfiling = false;
   var frameYieldMs = 5;
 
+  /**
+   * 最小堆优先级算法
+   * 入队操作
+   */
   function push(heap, node) {
     var index = heap.length;
+    // 自下而上建堆插入方式
     heap.push(node);
+    // 上滤
     siftUp(heap, node, index);
   }
+
+  /**
+   * 最小堆优先级算法
+   * 获取堆顶节点
+   */
   function peek(heap) {
     return heap.length === 0 ? null : heap[0];
   }
+  /**
+   * 最小堆优先级算法
+   * 出队操作
+   */
   function pop(heap) {
     if (heap.length === 0) {
       return null;
@@ -2428,43 +2443,58 @@
 
     var first = heap[0];
     var last = heap.pop();
-
+    // 判断节点是否只有一个,如果只有一个，则不需要进行下滤操作
     if (last !== first) {
       heap[0] = last;
       siftDown(heap, last, 0);
     }
-
+    // 返回堆顶node
     return first;
   }
 
+  /**
+   * 最小堆优先级算法
+   * 上滤
+   */
   function siftUp(heap, node, i) {
     var index = i;
 
+    /**
+     * 当遍历的index不大于0时
+     * 说明它已经没有了父节点
+     * 直接停止遍历
+     */
     while (index > 0) {
       var parentIndex = index - 1 >>> 1;
       var parent = heap[parentIndex];
 
       if (compare(parent, node) > 0) {
-        // The parent is larger. Swap positions.
+        // 如果父节点大于子节点 交换两个节点位置
         heap[parentIndex] = node;
         heap[index] = parent;
         index = parentIndex;
       } else {
-        // The parent is smaller. Exit.
+        // 当compare(parent, node) > 0 为false时,表示它已经是最小节点了
         return;
       }
     }
   }
-
+  /**
+   * 最小堆优先级算法
+   * 下滤
+   */
   function siftDown(heap, node, i) {
     var index = i;
     var length = heap.length;
+    // 二进制右移 取一般的长度
     var halfLength = length >>> 1;
 
     while (index < halfLength) {
       var leftIndex = (index + 1) * 2 - 1;
+      // 获取左子节点
       var left = heap[leftIndex];
       var rightIndex = leftIndex + 1;
+      // 获取右子节点
       var right = heap[rightIndex]; // If the left or right node is smaller, swap with the smaller of those.
 
       if (compare(left, node) < 0) {
@@ -2482,14 +2512,18 @@
         heap[rightIndex] = node;
         index = rightIndex;
       } else {
-        // Neither child is smaller. Exit.
+        // 当比较
         return;
       }
     }
   }
 
+  /**
+   * 最小堆优先级算法
+   * 比较优先级(内部方法)
+   */
   function compare(a, b) {
-    // Compare sort index first, then task id.
+    // 先比较sortIndex,如果sortIndex一样的话，则再比较任务的id
     var diff = a.sortIndex - b.sortIndex;
     return diff !== 0 ? diff : a.id - b.id;
   }
@@ -2632,7 +2666,10 @@
   }
 
   function workLoop(hasTimeRemaining, initialTime) {
-    debugger
+    console.log('--------- workLoop start ---------')
+    console.log('workLoop', );
+    console.log('--------- workLoop end ---------')
+    
     var currentTime = initialTime;
     advanceTimers(currentTime);
     currentTask = peek(taskQueue);

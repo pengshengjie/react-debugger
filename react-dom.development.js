@@ -26505,7 +26505,9 @@
 
 
   function workLoopSync() {
-    debugger
+    console.log('---------  start ---------')
+    console.log('workLoopSync');
+    console.log('---------  end ---------')
     // Already timed out, so perform work without checking if we need to yield.
     while (workInProgress !== null) {
       performUnitOfWork(workInProgress);
@@ -26581,14 +26583,24 @@
   }
   /** @noinline */
 
-
+  /**
+   * 并发模式工作入口
+   */
   function workLoopConcurrent() {
-    // Perform work until Scheduler asks us to yield
+    // 直到执行工作中的Fiber结束或者5ms之后退出循环
+    /**
+     * 满足以下两个条件之一则移交执行权
+     * workInProgress执行完所有的fiber单元
+     * shouldYield为true,通常是React内定5ms执行时间之后
+     * */
     while (workInProgress !== null && !shouldYield()) {
       performUnitOfWork(workInProgress);
     }
   }
-
+  /**
+   * 执行工作单元
+   * unitOfWork 即每一个fiber
+   */
   function performUnitOfWork(unitOfWork) {
     // The current, flushed, state of this fiber is the alternate. Ideally
     // nothing should rely on this, but relying on it here means that we don't
@@ -26608,6 +26620,11 @@
     resetCurrentFiber();
     unitOfWork.memoizedProps = unitOfWork.pendingProps;
 
+    /**
+     * 如果当前的工作单元next存在说明还存在下一个fiber
+     * 则继续调用performUnitOfWork
+     * 即将workInProgress赋值为下一个fiber节点
+     */
     if (next === null) {
       // If this doesn't spawn new work, complete the current work.
       completeUnitOfWork(unitOfWork);

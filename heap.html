@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    function render () {
+      document.body.innerHTML = '';
+      let newHeap = heap;
+
+    }
+    /**
+  * 最小堆优先级算法
+  * 入队操作
+  */
+    function push(heap, node) {
+      var index = heap.length;
+      // 自下而上建堆插入方式
+      heap.push(node);
+      // 上滤
+      siftUp(heap, node, index);
+    }
+
+    /**
+     * 最小堆优先级算法
+     * 获取堆顶节点
+     */
+    function peek(heap) {
+      return heap.length === 0 ? null : heap[0];
+    }
+    /**
+     * 最小堆优先级算法
+     * 出队操作
+     */
+    function pop(heap) {
+      if (heap.length === 0) {
+        return null;
+      }
+
+      var first = heap[0];
+      var last = heap.pop();
+      // 判断节点是否只有一个,如果只有一个，则不需要进行下滤操作
+      if (last !== first) {
+        heap[0] = last;
+        siftDown(heap, last, 0);
+      }
+      // 返回堆顶node
+      return first;
+    }
+
+    /**
+     * 最小堆优先级算法
+     * 上滤
+     */
+    function siftUp(heap, node, i) {
+      var index = i;
+
+      // 当遍历的index不大于0时,说明它已经没有了父节点，即使头节点 直接停止遍历
+      while (index > 0) {
+        var parentIndex = index - 1 >>> 1;
+        var parent = heap[parentIndex];
+        // 对比当父节点比子节点大时,交换节点
+        if (compare(parent, node) > 0) {
+          // The parent is larger. Swap positions.
+          heap[parentIndex] = node;
+          heap[index] = parent;
+          index = parentIndex;
+        } else {
+          // The parent is smaller. Exit.
+          return;
+        }
+      }
+    }
+    /**
+     * 最小堆优先级算法
+     * 下滤
+     */
+    function siftDown(heap, node, i) {
+      var index = i;
+      var length = heap.length;
+      // 二进制右移 取一般的长度
+      var halfLength = length >>> 1;
+
+      while (index < halfLength) {
+        var leftIndex = (index + 1) * 2 - 1;
+        // 获取左子节点
+        var left = heap[leftIndex];
+        var rightIndex = leftIndex + 1;
+        // 获取右子节点
+        var right = heap[rightIndex]; // If the left or right node is smaller, swap with the smaller of those.
+
+        if (compare(left, node) < 0) {
+          if (rightIndex < length && compare(right, left) < 0) {
+            heap[index] = right;
+            heap[rightIndex] = node;
+            index = rightIndex;
+          } else {
+            heap[index] = left;
+            heap[leftIndex] = node;
+            index = leftIndex;
+          }
+        } else if (rightIndex < length && compare(right, node) < 0) {
+          heap[index] = right;
+          heap[rightIndex] = node;
+          index = rightIndex;
+        } else {
+          // 当比较
+          return;
+        }
+      }
+    }
+
+    /**
+     * 最小堆优先级算法
+     * 比较优先级(内部方法)
+     */
+    function compare(a, b) {
+      return  a - b;
+    }
+
+    let heap = [];
+
+    push(heap, 0)
+    push(heap, 2)
+    push(heap, 3)
+    push(heap, 1)
+    push(heap, 5)
+    push(heap, 4)
+    push(heap, 9)
+    push(heap, 2.5)
+    push(heap, 4.4)
+    push(heap, 4.1)
+    push(heap, 4.3)
+    push(heap, 2.1)
+    console.log('--------- heap start ---------')
+    console.log('heap', heap);
+    console.log('--------- heap end ---------')
+  </script>
+</body>
+
+</html>
